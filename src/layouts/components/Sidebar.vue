@@ -32,7 +32,7 @@
           </el-sub-menu>
 
           <el-menu-item v-else-if="item.children && item.children.length === 1" :index="item.children[0].path">
-            <el-icon><component :is="item.icon" /></el-icon>
+            <el-icon><component :is="item.children[0].icon || item.icon || 'Minus'" /></el-icon>
             <template #title>{{ item.children[0].title }}</template>
           </el-menu-item>
         </template>
@@ -95,5 +95,17 @@ const activeMenu = computed(() => route.path)
 :deep(.el-menu-item.is-active) {
   background: $color-primary-softer !important;
   color: $color-primary !important;
+}
+
+/* v1.1.4 统一 outline 风格：所有 el-icon 内 SVG 强制线性 + currentColor */
+:deep(.el-icon svg) {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.6;
+}
+:deep(.el-menu-item:hover .el-icon svg),
+:deep(.el-sub-menu__title:hover .el-icon svg) {
+  fill: none !important;
+  stroke: currentColor !important;
 }
 </style>

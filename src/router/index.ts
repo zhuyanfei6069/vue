@@ -18,6 +18,7 @@ export const routes: RouteRecordRaw[] = [
     path: '/dashboard',
     component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/dashboard/index',
+    meta: { title: '工作台', icon: 'DataLine' },
     children: [
       {
         path: 'index',
