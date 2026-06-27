@@ -1,4 +1,6 @@
-import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
+import NProgress from 'nprogress'
+import { useUserStore } from '@/stores/user'
 
 /**
  * 路由配置
@@ -7,10 +9,14 @@ import type { RouteRecordRaw } from 'vue-router'
  *  - 全部使用 Element Plus 线性（outline）图标
  */
 export const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    redirect: '/dashboard/index'
+  },
   // ==================== 工作台（顶级页面）====================
   {
     path: '/dashboard',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/dashboard/index',
     children: [
       {
@@ -25,7 +31,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 计划管理 ====================
   {
     path: '/plan',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/plan/annual',
     meta: { title: '计划管理', icon: 'Document' },
     children: [
@@ -47,7 +53,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 运输管理·生产用车 ====================
   {
     path: '/transport/production',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/transport/production/plan',
     meta: { title: '运输管理·生产用车', icon: 'Promotion' },
     children: [
@@ -69,7 +75,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 运输管理·工程用车 ====================
   {
     path: '/transport/engineering',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/transport/engineering/apply',
     meta: { title: '运输管理·工程用车', icon: 'Tools' },
     children: [
@@ -91,7 +97,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 燃料消耗 ====================
   {
     path: '/fuel',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/fuel/refuel',
     meta: { title: '燃料消耗', icon: 'TakeawayBox' },
     children: [
@@ -113,7 +119,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 物流可视化 ====================
   {
     path: '/visualization',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/visualization/overview',
     meta: { title: '物流可视化', icon: 'LocationFilled' },
     children: [
@@ -132,7 +138,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'tracking',
         name: 'VizTracking',
-        component: () => import('@/views/visualization/Tracking.vue'),
+        component: () => import('@/views/visualization/Track.vue'),
         meta: { title: '车辆跟踪', icon: 'Position' }
       }
     ]
@@ -141,7 +147,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 费用归集 ====================
   {
     path: '/cost',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/cost/maintenance',
     meta: { title: '费用归集', icon: 'Wallet' },
     children: [
@@ -163,7 +169,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== KPI 指标分析 ====================
   {
     path: '/kpi',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/kpi/board',
     meta: { title: 'KPI 指标分析', icon: 'TrendCharts' },
     children: [
@@ -185,7 +191,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 车队管理 ====================
   {
     path: '/fleet',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/fleet/zone',
     meta: { title: '车队管理', icon: 'UserFilled' },
     children: [
@@ -207,7 +213,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 基础数据 ====================
   {
     path: '/base',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/base/team',
     meta: { title: '基础数据', icon: 'Folder' },
     children: [
@@ -229,7 +235,7 @@ export const routes: RouteRecordRaw[] = [
   // ==================== 规则管理 ====================
   {
     path: '/rule',
-    component: () => import('@/layouts/Index.vue'),
+    component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/rule/route',
     meta: { title: '规则管理', icon: 'Setting' },
     children: [
@@ -264,3 +270,38 @@ export const routes: RouteRecordRaw[] = [
     meta: { title: '页面不存在', hidden: true }
   }
 ]
+
+const router = createRouter({
+  history: createWebHashHistory(import.meta.env.BASE_URL),
+  routes,
+  scrollBehavior: () => ({ top: 0 })
+})
+
+const whiteList = ['/login', '/404']
+
+router.beforeEach((to, _from, next) => {
+  NProgress.start()
+  const userStore = useUserStore()
+
+  if (userStore.isLoggedIn) {
+    if (to.path === '/login') {
+      next('/dashboard/index')
+      return
+    }
+    next()
+    return
+  }
+
+  if (whiteList.includes(to.path)) {
+    next()
+    return
+  }
+
+  next({ path: '/login', query: { redirect: to.fullPath } })
+})
+
+router.afterEach(() => {
+  NProgress.done()
+})
+
+export default router
