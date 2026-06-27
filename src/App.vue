@@ -11,7 +11,10 @@
 </template>
 
 <script setup lang="ts">
+<<<<<<< HEAD
 import { computed } from 'vue'
+=======
+>>>>>>> 1081503 (feat: 物流执行系统 v1.1.0 规范化版本)
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useAppStore } from '@/stores/app'
 

@@ -50,18 +50,7 @@ import PageHeader from '@/components/common/PageHeader.vue'
 
 const date = ref(new Date())
 
-type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
-
-const kpis = ref<Array<{
-  label: string
-  value: string
-  unit: string
-  target: string
-  targetLabel: string
-  percent: number
-  color: string
-  tagType: TagType
-}>>([
+const kpis = ref([
   { label: '今日运量', value: '1,286', unit: '吨', target: '1500', targetLabel: '日目标', percent: 86, color: '#6F63FF', tagType: 'primary' },
   { label: '车辆利用率', value: '82.3', unit: '%', target: '85%', targetLabel: '月目标', percent: 82, color: '#186E55', tagType: 'success' },
   { label: '计划完成率', value: '94.5', unit: '%', target: '95%', targetLabel: '月目标', percent: 95, color: '#7C4F1B', tagType: 'warning' },
