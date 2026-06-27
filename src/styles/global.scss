@@ -1,0 +1,76 @@
+@use './tokens.scss' as *;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  color: $text-primary;
+  background-color: $bg-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: $text-link;
+  text-decoration: none;
+  &:hover { color: $color-primary-hover; }
+}
+
+// 滚动条
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: $border-strong;
+  border-radius: $radius-full;
+  &:hover { background: $text-tertiary; }
+}
+
+// 通用工具类
+.flex { display: flex; }
+.flex-1 { flex: 1; min-width: 0; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-1 { gap: $space-1; } .gap-2 { gap: $space-2; }
+.gap-3 { gap: $space-3; } .gap-4 { gap: $space-4; }
+.gap-6 { gap: $space-6; }
+
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
+.text-tertiary { color: $text-tertiary; }
+.text-link { color: $text-link; cursor: pointer; }
+
+.page-container {
+  padding: $space-6;
+  min-height: 100%;
+  background: $bg-page;
+}
+
+.card {
+  background: $bg-container;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  padding: $space-6;
+}
+
+// nprogress 进度条颜色
+#nprogress .bar {
+  background: $color-primary !important;
+  height: 3px !important;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px $color-primary, 0 0 5px $color-primary !important;
+}
