@@ -15,34 +15,16 @@ export interface MenuItem {
 }
 
 /**
- * Element Plus v2.3.1 真实图标全量保底映射
- *
- * 路由里写的 meta.icon 如果是 Element Plus 不存在的旧名字，
- * 这里会自动映射到最接近的官方图标，避免空白方块。
+ * v1.1.3 兜底映射
+ * 路由里如果还有旧图标名（DataAnalysis / Van / Map / Money / Files），
+ * 这里自动保底到 ElementPlus 真实存在的官方图标。
  */
 const ICON_FALLBACK: Record<string, string> = {
-  // 工作台（DataAnalysis 不存在 → 用 DataLine）
   DataAnalysis: 'DataLine',
-  // 计划（Document 存在，保留）
-  Document: 'Document',
-  // 运输管理·生产用车（Van 不存在 → Promotion）
   Van: 'Promotion',
-  // 运输管理·工程用车（Tools 存在，保留）
-  Tools: 'Tools',
-  // 燃料消耗（TakeawayBox 存在，保留）
-  TakeawayBox: 'TakeawayBox',
-  // 物流可视化（Map 不存在 → LocationFilled）
   Map: 'LocationFilled',
-  // 费用归集（Money 不存在 → Wallet）
   Money: 'Wallet',
-  // KPI 指标分析（TrendCharts 存在，保留）
-  TrendCharts: 'TrendCharts',
-  // 车队管理（UserFilled 存在，保留）
-  UserFilled: 'UserFilled',
-  // 基础数据（Files 不存在 → Folder）
   Files: 'Folder',
-  // 规则管理（Setting 存在，保留）
-  Setting: 'Setting',
 }
 
 /**
@@ -50,50 +32,51 @@ const ICON_FALLBACK: Record<string, string> = {
  * 三级容错：
  *  1. 字符串为空 → Minus 短横线
  *  2. 字符串不在 ElementPlus 中 → 走 ICON_FALLBACK 映射表
- *  3. 映射表里也找不到 → 还是 Minus
+ *  3. 终极兜底 → Minus
  */
 function resolveIcon(name: string) {
   if (!name) return ElementPlusIconsVue.Minus
 
-  // 直接命中
   const direct = (ElementPlusIconsVue as any)[name]
   if (direct) return direct
 
-  // 走保底映射
-  const fallback = ICON_FALLBACK[name] || 'Menu'
-  const mapped = (ElementPlusIconsVue as any)[fallback]
-  if (mapped) return mapped
+  const fallback = ICON_FALLBACK[name]
+  if (fallback) {
+    const mapped = (ElementPlusIconsVue as any)[fallback]
+    if (mapped) return mapped
+  }
 
-  // 终极兜底
   return ElementPlusIconsVue.Minus
 }
 
 /**
  * 从 routes 中提取菜单树（跳过登录/404/隐藏项）
+ * 一级 + 二级菜单都正确处理
  */
 export function buildMenu(): MenuItem[] {
   const menu: MenuItem[] = []
 
   const visit = (r: RouteRecordRaw, parent?: MenuItem) => {
     if (r.meta?.hidden) return
+
+    const item: MenuItem = {
+      path: r.path.startsWith('/') ? r.path : (parent ? `${parent.path}/${r.path}` : `/${r.path}`),
+      title: (r.meta?.title as string) || (r.name as string) || '',
+      icon: resolveIcon((r.meta?.icon as string) || ''),
+      children: []
+    }
+
     if (r.children && r.children.length > 0) {
-      const item: MenuItem = {
-        path: r.path.startsWith('/') ? r.path : (parent ? `${parent.path}/${r.path}` : `/${r.path}`),
-        title: (r.meta?.title as string) || (r.name as string) || '',
-        icon: resolveIcon((r.meta?.icon as string) || ''),
-        children: []
-      }
       r.children.forEach((c) => visit(c, item))
       if (item.children!.length > 0) {
         if (parent) parent.children!.push(item)
         else menu.push(item)
+      } else if (!parent) {
+        // 没有子菜单项（都被 hidden）就不显示这个一级
+        menu.push(item)
       }
     } else {
-      const item: MenuItem = {
-        path: r.path.startsWith('/') ? r.path : (parent ? `${parent.path}/${r.path}` : `/${r.path}`),
-        title: (r.meta?.title as string) || (r.name as string) || '',
-        icon: resolveIcon((r.meta?.icon as string) || '')
-      }
+      // 叶子节点
       if (parent) parent.children!.push(item)
       else menu.push(item)
     }
