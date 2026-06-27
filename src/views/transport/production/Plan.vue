@@ -2,7 +2,7 @@
   <div class="page-container">
     <PageHeader title="物流委托计划" subtitle="各业务单位发起的运输需求计划" />
 
-    <SearchForm v-model="query" @search="onSearch" @reset="onReset">
+    <SearchForm :model="query" @search="onSearch" @reset="onReset">
       <el-form-item label="委托单号">
         <el-input v-model="query.planNo" placeholder="请输入" clearable />
       </el-form-item>
